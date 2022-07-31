@@ -37,12 +37,11 @@ class FollowSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
     following = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='following', many=True)
+        queryset=User.objects.all(), slug_field='username')
 
     class Meta:
         model = Follow
         fields = '__all__'
-        read_only_fields = ('user',)
         validators = (
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
@@ -51,7 +50,7 @@ class FollowSerializer(serializers.ModelSerializer):
         )
 
     def validate_following(self, value):
-        if value == self.context['request'].user:
+        if self.context['request'].user == value:
             raise serializers.ValidationError(
                 'Подписываться на самого себя слишком эгоистично!')
         return value
